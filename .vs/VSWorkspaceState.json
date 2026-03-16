@@ -1,0 +1,15 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\build",
+    "\\dist",
+    "\\nbproject",
+    "\\src",
+    "\\src\\java",
+    "\\src\\java\\Cart",
+    "\\test",
+    "\\web"
+  ],
+  "SelectedNode": "\\build.xml",
+  "PreviewInSolutionExplorer": false
+}
