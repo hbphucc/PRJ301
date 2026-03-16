@@ -1,0 +1,2 @@
+Mô tả dự án (Project Overview)
+OnlineFashionShop là một hệ thống website thương mại điện tử chuyên cung cấp các mặt hàng thời trang nam và nữ. Ứng dụng cung cấp một quy trình mua sắm hoàn chỉnh từ khâu duyệt sản phẩm, thêm vào giỏ hàng, đến khi hoàn tất thanh toán. Song song đó, hệ thống tích hợp một trang quản trị (Admin Dashboard) giúp chủ cửa hàng dễ dàng kiểm soát kho hàng, danh mục và theo dõi trạng thái đơn hàng.
