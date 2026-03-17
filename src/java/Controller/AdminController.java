@@ -100,9 +100,13 @@ public class AdminController extends HttpServlet {
 
     private void dashboard(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        req.setAttribute("TOTAL_PRODUCTS", clothesDAO.getAllForAdmin().size());
-        req.setAttribute("TOTAL_ORDERS",   orderDAO.getAllOrders().size());
-        req.setAttribute("TOTAL_USERS",    userDAO.getAllUsers().size());
+        req.setAttribute("TOTAL_PRODUCTS",  clothesDAO.getAllForAdmin().size());
+        req.setAttribute("TOTAL_ORDERS",    orderDAO.getAllOrders().size());
+        req.setAttribute("TOTAL_USERS",     userDAO.getAllUsers().size());
+        req.setAttribute("NEW_ORDERS",      orderDAO.getNewOrdersCount());
+        req.setAttribute("TODAY_REVENUE",   orderDAO.getTodayRevenue());
+        req.setAttribute("MONTH_REVENUE",   orderDAO.getMonthRevenue());
+        req.setAttribute("NEW_USERS_TODAY", userDAO.getNewUsersToday());
         req.getRequestDispatcher("/admin/dashboard.jsp").forward(req, res);
     }
 
@@ -204,7 +208,13 @@ public class AdminController extends HttpServlet {
 
     private void orderList(HttpServletRequest req, HttpServletResponse res)
             throws ServletException, IOException {
-        req.setAttribute("ORDER_LIST", orderDAO.getAllOrders());
+        String status = nullSafe(req.getParameter("status"), "");
+        if (status.isEmpty()) {
+            req.setAttribute("ORDER_LIST", orderDAO.getAllOrders());
+        } else {
+            req.setAttribute("ORDER_LIST", orderDAO.getOrdersByStatus(status));
+        }
+        req.setAttribute("CURRENT_STATUS", status);
         req.getRequestDispatcher("/admin/orderList.jsp").forward(req, res);
     }
 

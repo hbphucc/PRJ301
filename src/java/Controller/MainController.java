@@ -54,8 +54,11 @@ public class MainController extends HttpServlet {
             case "FilterCategory":
                 filterCategory(req, res);
                 break;
-            case "FilterGender": 
-                filterGender(req, res); 
+            case "FilterGender":
+                filterGender(req, res);
+                break;
+            case "FilterAdvanced":
+                filterAdvanced(req, res);
                 break;
             case "ViewDetail":   
                 viewDetail(req, res);  
@@ -106,8 +109,11 @@ public class MainController extends HttpServlet {
             case "UserProfile":   
                 userProfile(req, res);     
                 break;
-            case "UpdateProfile":  
+            case "UpdateProfile":
                 updateProfile(req, res);
+                break;
+            case "ChangePassword":
+                changePassword(req, res);
                 break;
 
             default:               
@@ -148,6 +154,26 @@ public class MainController extends HttpServlet {
             req.setAttribute("LIST_PRODUCT",  clothesDAO.getByGender(gender));
             req.setAttribute("LIST_CATEGORY", clothesDAO.getAllCategories());
             req.setAttribute("CURRENT_GENDER", gender);
+            req.getRequestDispatcher("/index.jsp").forward(req, res);
+        }
+
+        private void filterAdvanced(HttpServletRequest req, HttpServletResponse res)
+                throws ServletException, IOException {
+            String gender     = nullSafe(req.getParameter("gender"));
+            String categoryID = nullSafe(req.getParameter("categoryID"));
+            String sizeParam  = nullSafe(req.getParameter("size"));
+            String sort       = nullSafe(req.getParameter("sort"));
+            double minPrice   = parseDouble(nullSafe(req.getParameter("minPrice")), 0);
+            double maxPrice   = parseDouble(nullSafe(req.getParameter("maxPrice")), 0);
+
+            req.setAttribute("LIST_PRODUCT",    clothesDAO.filterAdvanced(gender, categoryID, minPrice, maxPrice, sizeParam, sort));
+            req.setAttribute("LIST_CATEGORY",   clothesDAO.getAllCategories());
+            req.setAttribute("CURRENT_GENDER",  gender);
+            req.setAttribute("CURRENT_CATEGORY",categoryID);
+            req.setAttribute("FILTER_SIZE",     sizeParam);
+            req.setAttribute("FILTER_SORT",     sort);
+            req.setAttribute("FILTER_MIN_PRICE",minPrice > 0 ? (long)minPrice : null);
+            req.setAttribute("FILTER_MAX_PRICE",maxPrice > 0 ? (long)maxPrice : null);
             req.getRequestDispatcher("/index.jsp").forward(req, res);
         }
 
@@ -382,14 +408,46 @@ public class MainController extends HttpServlet {
         }
 
 
-        private String nullSafe(String v){ 
+        private void changePassword(HttpServletRequest req, HttpServletResponse res)
+                throws ServletException, IOException {
+            UserDTO user = (UserDTO) req.getSession().getAttribute("LOGIN_USER");
+            if (user == null) {
+                res.sendRedirect("login.jsp?msg=login_required");
+                return;
+            }
+            String oldPwd  = nullSafe(req.getParameter("oldPassword"));
+            String newPwd  = nullSafe(req.getParameter("newPassword"));
+            String newPwd2 = nullSafe(req.getParameter("newPassword2"));
+            if (newPwd.isEmpty() || newPwd.length() < 6) {
+                req.setAttribute("PWD_ERROR", "Mật khẩu mới phải có ít nhất 6 ký tự");
+                req.getRequestDispatcher("/profile.jsp").forward(req, res);
+                return;
+            }
+            if (!newPwd.equals(newPwd2)) {
+                req.setAttribute("PWD_ERROR", "Mật khẩu xác nhận không khớp");
+                req.getRequestDispatcher("/profile.jsp").forward(req, res);
+                return;
+            }
+            boolean ok = userDAO.changePassword(user.getUserID(), oldPwd, newPwd);
+            if (ok) {
+                res.sendRedirect("MainController?action=UserProfile&msg=pwd_changed");
+            } else {
+                req.setAttribute("PWD_ERROR", "Mật khẩu cũ không đúng");
+                req.getRequestDispatcher("/profile.jsp").forward(req, res);
+            }
+        }
+
+        private String nullSafe(String v){
             return v == null ? "" : v.trim(); 
         }
 
         private String nullSafe(String v, String def){ 
             return (v == null || v.trim().isEmpty()) ? def : v.trim(); 
         }
-        private int    parseInt(String v, int def){ 
+        private double parseDouble(String v, double def){
+            try{ return Double.parseDouble(v); }catch(Exception e){ return def; }
+        }
+        private int    parseInt(String v, int def){
             try{ 
                 return Integer.parseInt(v); 
             }catch(Exception e){ 

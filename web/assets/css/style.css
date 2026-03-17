@@ -460,6 +460,49 @@ select.form-control   { cursor: pointer; appearance: auto; }
   font-weight: 600;
 }
 
+/* ─── Advanced Filter Bar ─────────────────────────────────────── */
+.advanced-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  padding: 16px 20px;
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-sm);
+}
+.af-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.af-label {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: var(--c-muted);
+}
+.af-select,
+.af-input {
+  height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--c-border);
+  border-radius: var(--radius);
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--c-text);
+  background: var(--c-bg);
+  outline: none;
+  transition: border-color .15s;
+}
+.af-select { min-width: 130px; }
+.af-input  { width: 110px; }
+.af-select:focus, .af-input:focus { border-color: var(--c-accent); }
+.af-btn { height: 36px; padding: 0 16px; font-size: 13px; align-self: flex-end; }
+
 /* ═══════════════════════════════════════════════════════════════════
    PRODUCT GRID & CARD
    ═══════════════════════════════════════════════════════════════════ */

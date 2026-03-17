@@ -12,6 +12,39 @@ import java.util.List;
 import java.util.Map;
 
 public class OrderDAO {
+    
+    public double getTodayRevenue() {
+        String sql = "SELECT ISNULL(SUM(totalAmount),0) FROM tblOrders "
+                   + "WHERE status = 'delivered' AND CAST(createdAt AS DATE) = CAST(GETDATE() AS DATE)";
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getDouble(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public double getMonthRevenue() {
+        String sql = "SELECT ISNULL(SUM(totalAmount),0) FROM tblOrders "
+                   + "WHERE status = 'delivered' "
+                   + "AND MONTH(createdAt) = MONTH(GETDATE()) AND YEAR(createdAt) = YEAR(GETDATE())";
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getDouble(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public int getNewOrdersCount() {
+        String sql = "SELECT COUNT(*) FROM tblOrders WHERE status = 'pending'";
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
 
     public String placeOrder(OrderDTO order, Map<String, CartItem> cart) {
         String orderID = java.util.UUID.randomUUID().toString();
@@ -88,6 +121,28 @@ public class OrderDAO {
             }
         } catch (Exception e) {
             e.printStackTrace(); 
+        }
+        return list;
+    }
+
+    public List<OrderDTO> getOrdersByStatus(String status) {
+        String sql = "SELECT o.*, u.fullName AS userFullName "
+                   + "FROM tblOrders o JOIN tblUsers u ON o.userID = u.userID "
+                   + "WHERE o.status = ? "
+                   + "ORDER BY o.createdAt DESC";
+        List<OrderDTO> list = new ArrayList<>();
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    OrderDTO o = mapRow(rs);
+                    o.setUserFullName(rs.getString("userFullName"));
+                    list.add(o);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return list;
     }

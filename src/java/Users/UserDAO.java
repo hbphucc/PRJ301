@@ -117,6 +117,42 @@ public boolean register(UserDTO user) {
         return false;
     }
 
+    public int getNewUsersToday() {
+        String sql = "SELECT COUNT(*) FROM tblUsers WHERE CAST(createdAt AS DATE) = CAST(GETDATE() AS DATE)";
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt(1);
+        } catch (Exception e) { e.printStackTrace(); }
+        return 0;
+    }
+
+    public boolean changePassword(String userID, String oldPassword, String newPassword) {
+        // Verify old password first
+        String checkSql = "SELECT userID FROM tblUsers WHERE userID = ? AND password = ?";
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(checkSql)) {
+            ps.setString(1, userID);
+            ps.setString(2, oldPassword);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) return false; // old password wrong
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+        String updateSql = "UPDATE tblUsers SET password = ? WHERE userID = ?";
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(updateSql)) {
+            ps.setString(1, newPassword);
+            ps.setString(2, userID);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     private UserDTO mapRow(ResultSet rs) throws SQLException {
         UserDTO u = new UserDTO();
         u.setUserID(rs.getString("userID"));

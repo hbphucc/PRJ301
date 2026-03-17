@@ -92,6 +92,57 @@ public class ClothesDAO {
         return list;
     }
 
+    public List<ClothesDTO> filterAdvanced(String gender, String categoryID,
+                                           double minPrice, double maxPrice,
+                                           String size, String sort) {
+        StringBuilder sql = new StringBuilder(
+            "SELECT DISTINCT c.*, cat.categoryName, cat.gender, "
+          + "ISNULL((SELECT SUM(ps2.stock) FROM tblProductSizes ps2 WHERE ps2.productID = c.productID), 0) AS stock "
+          + "FROM tblClothes c "
+          + "JOIN tblCategories cat ON c.categoryID = cat.categoryID "
+        );
+        if (size != null && !size.trim().isEmpty()) {
+            sql.append("JOIN tblProductSizes ps ON ps.productID = c.productID AND ps.size = ? AND ps.stock > 0 ");
+        }
+        sql.append("WHERE c.status = 1 ");
+
+        if (gender != null && !gender.trim().isEmpty()) sql.append("AND cat.gender = ? ");
+        if (categoryID != null && !categoryID.trim().isEmpty()) sql.append("AND c.categoryID = ? ");
+        if (minPrice > 0) sql.append("AND c.price >= ? ");
+        if (maxPrice > 0) sql.append("AND c.price <= ? ");
+
+        switch (sort == null ? "" : sort) {
+            case "price_asc":   sql.append("ORDER BY c.price ASC"); break;
+            case "price_desc":  sql.append("ORDER BY c.price DESC"); break;
+            case "bestseller":
+                sql.append("ORDER BY (SELECT ISNULL(SUM(od.quantity),0) FROM tblOrderDetails od WHERE od.productID = c.productID) DESC");
+                break;
+            default:            sql.append("ORDER BY c.createdAt DESC"); // newest
+        }
+
+        List<ClothesDTO> list = new ArrayList<>();
+        try (Connection conn = DBUtils.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            int idx = 1;
+            if (size != null && !size.trim().isEmpty()) ps.setString(idx++, size.trim());
+            if (gender != null && !gender.trim().isEmpty()) ps.setString(idx++, gender.trim());
+            if (categoryID != null && !categoryID.trim().isEmpty()) ps.setString(idx++, categoryID.trim());
+            if (minPrice > 0) ps.setDouble(idx++, minPrice);
+            if (maxPrice > 0) ps.setDouble(idx++, maxPrice);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    ClothesDTO p = mapRow(rs);
+                    p.setStock(rs.getInt("stock"));
+                    list.add(p);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        populateSizes(list);
+        return list;
+    }
+
     public ClothesDTO getByID(String productID) {
         String sql = "SELECT c.*, cat.categoryName, cat.gender "
                    + "FROM tblClothes c JOIN tblCategories cat ON c.categoryID = cat.categoryID "

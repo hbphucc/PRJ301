@@ -34,23 +34,70 @@
 <div class="section">
   <div class="container">
 
-    <!-- Filter bar -->
-    <div class="filter-bar">
-      <strong style="align-self:center;font-size:13px;margin-right:4px;">Lọc:</strong>
-      <a href="MainController?action=ShoppingPage"
-         class="${empty CURRENT_GENDER && empty CURRENT_CATEGORY ? 'active' : ''}">Tất cả</a>
-      <a href="MainController?action=FilterGender&gender=male"
-         class="${CURRENT_GENDER == 'male' ? 'active' : ''}">Nam</a>
-      <a href="MainController?action=FilterGender&gender=female"
-         class="${CURRENT_GENDER == 'female' ? 'active' : ''}">Nữ</a>
-      <a href="MainController?action=FilterGender&gender=unisex"
-         class="${CURRENT_GENDER == 'unisex' ? 'active' : ''}">Unisex</a>
-      <span style="color:var(--c-border);margin:0 4px;">|</span>
-      <c:forEach var="cat" items="${LIST_CATEGORY}">
-        <a href="MainController?action=FilterCategory&categoryID=${cat.categoryID}"
-           class="${CURRENT_CATEGORY == cat.categoryID ? 'active' : ''}">${cat.categoryName}</a>
-      </c:forEach>
-    </div>
+
+    <!-- Advanced filter panel -->
+    <form action="MainController" method="get" class="advanced-filter-bar">
+      <input type="hidden" name="action" value="FilterAdvanced">
+
+      <div class="af-group">
+        <label class="af-label"><i class="fas fa-venus-mars"></i> Giới tính</label>
+        <select name="gender" class="af-select">
+          <option value="">Tất cả</option>
+          <option value="male"   ${CURRENT_GENDER == 'male'   ? 'selected' : ''}>Nam</option>
+          <option value="female" ${CURRENT_GENDER == 'female' ? 'selected' : ''}>Nữ</option>
+          <option value="unisex" ${CURRENT_GENDER == 'unisex' ? 'selected' : ''}>Unisex</option>
+        </select>
+      </div>
+
+      <div class="af-group">
+        <label class="af-label"><i class="fas fa-tags"></i> Danh mục</label>
+        <select name="categoryID" class="af-select">
+          <option value="">Tất cả</option>
+          <c:forEach var="cat" items="${LIST_CATEGORY}">
+            <option value="${cat.categoryID}" ${CURRENT_CATEGORY == cat.categoryID ? 'selected' : ''}>${cat.categoryName}</option>
+          </c:forEach>
+        </select>
+      </div>
+
+      <div class="af-group">
+        <label class="af-label"><i class="fas fa-ruler"></i> Size</label>
+        <select name="size" class="af-select">
+          <option value="">Tất cả</option>
+          <c:forEach var="sz" items="${['S','M','L','XL','XXL']}">
+            <option value="${sz}" ${FILTER_SIZE == sz ? 'selected' : ''}>${sz}</option>
+          </c:forEach>
+        </select>
+      </div>
+
+      <div class="af-group">
+        <label class="af-label"><i class="fas fa-dollar-sign"></i> Giá từ</label>
+        <input type="number" name="minPrice" class="af-input" placeholder="0"
+               value="${not empty FILTER_MIN_PRICE ? FILTER_MIN_PRICE : ''}" min="0" step="50000">
+      </div>
+
+      <div class="af-group">
+        <label class="af-label">đến</label>
+        <input type="number" name="maxPrice" class="af-input" placeholder="Tối đa"
+               value="${not empty FILTER_MAX_PRICE ? FILTER_MAX_PRICE : ''}" min="0" step="50000">
+      </div>
+
+      <div class="af-group">
+        <label class="af-label"><i class="fas fa-sort"></i> Sắp xếp</label>
+        <select name="sort" class="af-select">
+          <option value="newest"     ${FILTER_SORT == 'newest'     ? 'selected' : ''}>Mới nhất</option>
+          <option value="price_asc"  ${FILTER_SORT == 'price_asc'  ? 'selected' : ''}>Giá tăng dần</option>
+          <option value="price_desc" ${FILTER_SORT == 'price_desc' ? 'selected' : ''}>Giá giảm dần</option>
+          <option value="bestseller" ${FILTER_SORT == 'bestseller' ? 'selected' : ''}>Bán chạy</option>
+        </select>
+      </div>
+
+      <button type="submit" class="btn btn-primary af-btn">
+        <i class="fas fa-filter"></i> Lọc
+      </button>
+      <a href="MainController?action=ShoppingPage" class="btn btn-outline af-btn">
+        <i class="fas fa-times"></i> Xoá lọc
+      </a>
+    </form>
 
     <!-- Result info -->
     <c:if test="${not empty SEARCH_KEYWORD}">

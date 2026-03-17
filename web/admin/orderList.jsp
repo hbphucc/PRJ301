@@ -17,12 +17,12 @@
 
     <!-- Filter tabs -->
     <div class="filter-bar" style="margin-bottom:24px;">
-      <a href="?action=OrderList" class="active">Tất cả</a>
-      <a href="?action=OrderList&status=pending">Chờ xử lý</a>
-      <a href="?action=OrderList&status=processing">Đang xử lý</a>
-      <a href="?action=OrderList&status=shipped">Đang giao</a>
-      <a href="?action=OrderList&status=delivered">Đã giao</a>
-      <a href="?action=OrderList&status=cancelled">Đã huỷ</a>
+      <a href="AdminController?action=OrderList"                   class="${empty CURRENT_STATUS          ? 'active' : ''}">Tất cả</a>
+      <a href="AdminController?action=OrderList&status=pending"    class="${CURRENT_STATUS == 'pending'    ? 'active' : ''}">Chờ xử lý</a>
+      <a href="AdminController?action=OrderList&status=processing" class="${CURRENT_STATUS == 'processing' ? 'active' : ''}">Đang xử lý</a>
+      <a href="AdminController?action=OrderList&status=shipped"    class="${CURRENT_STATUS == 'shipped'    ? 'active' : ''}">Đang giao</a>
+      <a href="AdminController?action=OrderList&status=delivered"  class="${CURRENT_STATUS == 'delivered'  ? 'active' : ''}">Đã giao</a>
+      <a href="AdminController?action=OrderList&status=cancelled"  class="${CURRENT_STATUS == 'cancelled'  ? 'active' : ''}">Đã huỷ</a>
     </div>
 
     <table class="admin-table">
@@ -50,7 +50,7 @@
             </td>
             <td>${order.paymentMethod}</td>
             <td><span class="badge badge-${order.status}">${order.statusLabel}</span></td>
-            <td style="font-size:13px;color:var(--c-muted);">${order.createdAt}</td>
+            <td style="font-size:13px;color:var(--c-muted);">${order.formattedDate}</td>
             <td>
               <a href="AdminController?action=OrderDetail&id=${order.orderID}" class="btn btn-outline btn-sm">
                 <i class="fas fa-eye"></i> Chi tiết

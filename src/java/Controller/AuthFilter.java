@@ -6,11 +6,7 @@ import javax.servlet.http.*;
 import java.io.IOException;
 import javax.servlet.annotation.WebFilter;
 
-/**
- * Servlet Filter that enforces authentication and authorization.
- * - /admin/*  → requires role == "admin"
- * - /order/*  → requires any logged-in user
- */
+
 public class AuthFilter implements Filter {
 
     @Override
