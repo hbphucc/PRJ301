@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.*;
 import javax.servlet.annotation.WebServlet;
 
+@WebServlet(name = "MainController", urlPatterns = {"/MainController"})
 public class MainController extends HttpServlet {
 
     private ClothesDAO clothesDAO = new ClothesDAO();
@@ -77,7 +78,7 @@ public class MainController extends HttpServlet {
             String id = req.getParameter("id");
             ClothesDTO product = clothesDAO.getByID(id); 
             req.setAttribute("PRODUCT", product);
-            req.getRequestDispatcher("product-detail.jsp").forward(req, res);
+            req.getRequestDispatcher("/productDetail.jsp").forward(req, res);
             break;
 
             case "AddToCart":  
@@ -388,23 +389,45 @@ public class MainController extends HttpServlet {
 
 
         private void userProfile(HttpServletRequest req, HttpServletResponse res)
-                throws ServletException, IOException {
-            req.getRequestDispatcher("profile.jsp").forward(req, res);
-        }
+        throws ServletException, IOException {
 
-        private void updateProfile(HttpServletRequest req, HttpServletResponse res)
-                throws ServletException, IOException {
             UserDTO user = (UserDTO) req.getSession().getAttribute("LOGIN_USER");
+
             if (user == null) {
                 res.sendRedirect("login.jsp?msg=login_required");
                 return;
             }
-            user.setFullName(req.getParameter("fullName"));
-            user.setPhone(req.getParameter("phone"));
-            user.setAddress(req.getParameter("address"));
-            userDAO.updateProfile(user);
-            req.getSession().setAttribute("LOGIN_USER", user);
-            res.sendRedirect("MainController?action=UserProfile&msg=updated");
+
+            req.getRequestDispatcher("/profile.jsp").forward(req, res);
+        }
+
+        private void updateProfile(HttpServletRequest req, HttpServletResponse res)
+        throws ServletException, IOException {
+            UserDTO currentUser = (UserDTO) req.getSession().getAttribute("LOGIN_USER");
+            if (currentUser == null) {
+                res.sendRedirect("login.jsp?msg=login_required");
+                return;
+            }
+
+            String fullName = req.getParameter("fullName");
+            String phone = req.getParameter("phone");
+            String address = req.getParameter("address");
+
+            UserDTO updateUser = new UserDTO();
+            updateUser.setUserID(currentUser.getUserID());
+            updateUser.setFullName(fullName);
+            updateUser.setPhone(phone);
+            updateUser.setAddress(address);
+            updateUser.setEmail(currentUser.getEmail()); 
+
+            boolean success = userDAO.updateProfile(updateUser);
+            if (success) {
+                req.getSession().setAttribute("LOGIN_USER", updateUser);
+                res.sendRedirect("MainController?action=UserProfile&msg=updated");
+            } else {
+                req.setAttribute("ERROR", "Cập nhật thất bại, vui lòng thử lại.");
+                req.getRequestDispatcher("/profile.jsp").forward(req, res);
+            }
         }
 
 

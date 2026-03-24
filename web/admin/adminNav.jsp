@@ -4,7 +4,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <div class="sidebar">
-  <div class="sidebar__logo">⚙ Admin Panel</div>
+  <div class="sidebar__logo">Admin Panel</div>
 
   <div class="sidebar__section">Tổng quan</div>
   <a href="${pageContext.request.contextPath}/AdminController?action=Dashboard">

@@ -1,6 +1,6 @@
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn" %> <!DOCTYPE html>
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
@@ -26,12 +26,11 @@
 
   <div style="display:grid;grid-template-columns:240px 1fr;gap:32px;">
 
-    <!-- Sidebar menu -->
     <div>
       <div style="background:var(--c-surface);border-radius:12px;border:1px solid var(--c-border);overflow:hidden;">
         <div style="padding:20px;border-bottom:1px solid var(--c-border);text-align:center;">
-          <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--c-accent),var(--c-accent-dk));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px;color:#fff;">
-            ${LOGIN_USER.fullName.charAt(0).toUpperCase()}
+          <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--c-accent),var(--c-accent-dk));border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:24px;color:#fff;text-transform:uppercase;">
+            ${fn:substring(LOGIN_USER.fullName, 0, 1)}
           </div>
           <div style="font-weight:600;">${LOGIN_USER.fullName}</div>
           <div style="font-size:12px;color:var(--c-muted);">${LOGIN_USER.email}</div>
@@ -50,10 +49,8 @@
       </div>
     </div>
 
-    <!-- Main content -->
     <div style="display:flex;flex-direction:column;gap:24px;">
 
-      <!-- Thông tin cá nhân -->
       <div class="form-card">
         <h3><i class="fas fa-user-edit" style="color:var(--c-accent);margin-right:8px;"></i>Thông tin cá nhân</h3>
         <form action="MainController" method="post" style="margin-top:16px;">
@@ -80,7 +77,6 @@
         </form>
       </div>
 
-      <!-- Đổi mật khẩu -->
       <div class="form-card">
         <h3><i class="fas fa-lock" style="color:var(--c-accent);margin-right:8px;"></i>Đổi mật khẩu</h3>
 

@@ -15,7 +15,7 @@
     <div class="navbar__inner">
 
       <a href="${pageContext.request.contextPath}/MainController?action=ShoppingPage" class="navbar__logo">
-        ✦ FASHION SHOP
+         FASHION SHOP
       </a>
 
       <div class="navbar__search">

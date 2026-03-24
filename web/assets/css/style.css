@@ -1450,7 +1450,6 @@ select.form-control   { cursor: pointer; appearance: auto; }
 }
 .qv-footer .btn { flex: 1; justify-content: center; }
 
-/* Responsive modal */
 @media (max-width: 680px) {
   .qv-modal {
     grid-template-columns: 1fr;

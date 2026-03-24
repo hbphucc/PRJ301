@@ -22,7 +22,7 @@
 <body>
 <div class="auth-card">
   <div class="auth-header">
-    <h1>✦ Fashion Shop</h1>
+    <h1>Fashion Shop</h1>
     <p>Tạo tài khoản mới</p>
   </div>
   <div class="auth-body">
