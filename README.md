@@ -18,3 +18,62 @@ FashionShop là một hệ thống website thương mại điện tử chuyên c
 - Product Mindset (Tư duy làm sản phẩm): Không chỉ viết code cho chạy được, mà còn biết đặt mình vào vị trí của người mua hàng để thiết kế luồng click chuột sao cho mượt mà, ít lỗi nhất.
 - System Thinking (Tư duy hệ thống): Nhìn thấy bức tranh tổng thể về cách dữ liệu liên kết với nhau (Ví dụ: Xóa một danh mục thì các sản phẩm thuộc danh mục đó sẽ ra sao?).
 - Kỹ năng tự quản lý: Khả năng chia nhỏ một khối lượng công việc khổng lồ thành các module nhỏ (User, Cart, Admin) để giải quyết từng bước mà không bị ngợp.
+
+graph TB
+    Browser["🌐 Browser"]
+
+    subgraph WebLayer ["Web Layer"]
+        AF["AuthFilter\n(bảo vệ /admin, /cart, /order)"]
+        MC["MainController\n(User actions)"]
+        AC["AdminController\n(Admin actions)"]
+    end
+
+    subgraph JSPViews ["JSP Views"]
+        direction TB
+        subgraph UserPages ["Trang người dùng"]
+            V1["index.jsp"]
+            V2["productDetail.jsp"]
+            V3["cart.jsp"]
+            V4["checkout.jsp"]
+            V5["orderHistory.jsp"]
+            V6["orderDetail.jsp"]
+            V7["profile.jsp"]
+            V8["login.jsp / register.jsp"]
+        end
+        subgraph AdminPages ["Trang admin"]
+            A1["dashboard.jsp"]
+            A2["productList/Form.jsp"]
+            A3["categoryList.jsp"]
+            A4["orderList/Detail.jsp"]
+            A5["userList.jsp"]
+        end
+    end
+
+    subgraph DAOLayer ["DAO Layer"]
+        D1["ClothesDAO"]
+        D2["UserDAO"]
+        D3["OrderDAO"]
+    end
+
+    subgraph DTOLayer ["DTO Layer"]
+        DT1["ClothesDTO"]
+        DT2["UserDTO"]
+        DT3["OrderDTO"]
+        DT4["CartItem"]
+        DT5["CategoryDTO"]
+        DT6["OrderDetailDTO"]
+    end
+
+    DB[("🗄️ SQL Server")]
+
+    Browser --> AF
+    AF -->|"role=admin"| AC
+    AF -->|"role=customer"| MC
+    MC --> V1 & V2 & V3 & V4 & V5 & V6 & V7 & V8
+    AC --> A1 & A2 & A3 & A4 & A5
+    MC --> D1 & D2 & D3
+    AC --> D1 & D2 & D3
+    D1 --> DT1 & DT5
+    D2 --> DT2
+    D3 --> DT3 & DT4 & DT6
+    D1 & D2 & D3 --> DB
