@@ -103,8 +103,11 @@ public class MainController extends HttpServlet {
             case "OrderHistory": 
                 orderHistory(req, res);   
                 break;
-            case "OrderDetail":  
-                orderDetail(req, res);    
+            case "OrderDetail":
+                orderDetail(req, res);
+                break;
+            case "CancelOrder":
+                cancelOrder(req, res);
                 break;
 
             case "UserProfile":   
@@ -372,7 +375,7 @@ public class MainController extends HttpServlet {
                 throws ServletException, IOException {
             UserDTO user = (UserDTO) req.getSession().getAttribute("LOGIN_USER");
             if (user == null){
-                res.sendRedirect("login.jsp");
+                res.sendRedirect("/login.jsp");
                 return;
             }
             req.setAttribute("ORDER_LIST", orderDAO.getOrdersByUser(user.getUserID()));
@@ -387,6 +390,22 @@ public class MainController extends HttpServlet {
             req.getRequestDispatcher("/orderDetail.jsp").forward(req, res);
         }
 
+
+        private void cancelOrder(HttpServletRequest req, HttpServletResponse res)
+                throws ServletException, IOException {
+            UserDTO user = (UserDTO) req.getSession().getAttribute("LOGIN_USER");
+            if (user == null) {
+                res.sendRedirect("login.jsp?msg=login_required");
+                return;
+            }
+            String orderID = req.getParameter("id");
+            boolean ok = orderDAO.cancelOrder(orderID, user.getUserID());
+            if (ok) {
+                res.sendRedirect("MainController?action=OrderDetail&id=" + orderID + "&cancelled=1");
+            } else {
+                res.sendRedirect("MainController?action=OrderDetail&id=" + orderID + "&cancelError=1");
+            }
+        }
 
         private void userProfile(HttpServletRequest req, HttpServletResponse res)
         throws ServletException, IOException {

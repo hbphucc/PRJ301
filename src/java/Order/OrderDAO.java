@@ -187,6 +187,49 @@ public class OrderDAO {
         return null;
     }
 
+    public boolean cancelOrder(String orderID, String userID) {
+        String checkSql = "SELECT status FROM tblOrders WHERE orderID = ? AND userID = ?";
+        String cancelSql = "UPDATE tblOrders SET status = 'cancelled' WHERE orderID = ? AND userID = ? AND status = 'pending'";
+        String restoreStock = "UPDATE tblProductSizes SET stock = stock + ? WHERE productID = ? AND size = ?";
+        Connection conn = null;
+        try {
+            conn = DBUtils.getConnection();
+            try (PreparedStatement ps = conn.prepareStatement(checkSql)) {
+                ps.setString(1, orderID);
+                ps.setString(2, userID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (!rs.next()) return false;
+                    String status = rs.getString("status");
+                    if (!"pending".equals(status)) return false;
+                }
+            }
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(cancelSql)) {
+                ps.setString(1, orderID);
+                ps.setString(2, userID);
+                if (ps.executeUpdate() == 0) { conn.rollback(); return false; }
+            }
+            List<OrderDetailDTO> details = getDetailsByOrder(orderID);
+            try (PreparedStatement ps = conn.prepareStatement(restoreStock)) {
+                for (OrderDetailDTO d : details) {
+                    ps.setInt(1, d.getQuantity());
+                    ps.setString(2, d.getProductID());
+                    ps.setString(3, d.getSize());
+                    ps.addBatch();
+                }
+                ps.executeBatch();
+            }
+            conn.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            try { if (conn != null) conn.rollback(); } catch (Exception ex) {}
+        } finally {
+            try { if (conn != null) conn.close(); } catch (Exception ex) {}
+        }
+        return false;
+    }
+
     public boolean updateStatus(String orderID, String status) {
         String sql = "UPDATE tblOrders SET status = ? WHERE orderID = ?";
         try (Connection conn = DBUtils.getConnection();
